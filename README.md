@@ -22,3 +22,23 @@ To retrieve the Phantom Coordinate System wrt to the Tracker Coordinate Frame, w
 Where row,col are the row and col pixel location of the landmarks
 
 6. We run the main file on the acquired data and segmented landmark to perform the calibration
+
+# Dependencies
+To run the calibration script, one need to build the PLUS library (https://github.com/PlusToolkit/PlusBuild/).
+In order to do so (Instruciton for Debug Build): 
+>> git clone https://github.com/PlusToolkit/PlusBuild/
+>> mkdir PlusBuild && cd PlusBuild 
+>> cmake -DCMAKE_BUILD_TYPE=Debug ..
+>> make 
+
+# Compile the calibration script
+>> git clone https://github.com/mariatirindelli/WirePhantomCalibration
+>> cd WirePhantomCalibration && mkdir build
+>> cmake-gui
+![image](https://user-images.githubusercontent.com/48152056/164428897-82570360-86ab-4792-80dd-1bc76ad61fb4.png)
+Set the cmake variables in order to point to the correct location of the PlusLib
+>> make
+
+
+
+
