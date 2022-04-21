@@ -2,12 +2,16 @@
 Implemention of the wire phantom calibration to calibrate a tracked US probe
 
 This repo provides an implementation of the wire phantom calibration algorithm. 
-The code was tested against the data in the "test" folder. 
+The code was tested with the data contained in https://drive.google.com/drive/folders/1xyd7NPewnFswJNDuWIy-YAbZR7nK0i4Q 
+
+We used a fCal3.1  - the model is contained in Data/PhantomModel/fCal_3.1.stl
+
+![image](https://user-images.githubusercontent.com/48152056/164425427-aa748a03-439a-449c-9476-6af503b76c8e.png)
+
+We used 5 NWires
+
 
 Below, we report a description of the data acquisition procedure used to acquire the data. 
-
-1. We used a fCal
-2. ![image](https://user-images.githubusercontent.com/48152056/164425427-aa748a03-439a-449c-9476-6af503b76c8e.png)
 
 To retrieve the Phantom Coordinate System wrt to the Tracker Coordinate Frame, we did the following: 
 2.a With a (calibrated) stylus we pointed at known locations on the phantom. 
