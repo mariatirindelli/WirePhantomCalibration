@@ -115,19 +115,29 @@ The ImageToTransducerOriginPixel is the transformation between the image origin 
                 Institution="Queen's University PerkLab" />
         <Geometry>
             <Pattern Type="NWire">
-                <Wire Name="1:E2_e2" EndPointFront="20.0 0.0 10.0" EndPointBack="20.0 40.0 10.0" />
-                <Wire Name="2:I2_f2" EndPointFront="40.0 0.0 10.0" EndPointBack="25.0 40.0 10.0" />
-                <Wire Name="3:J2_j2" EndPointFront="45.0 0.0 10.0" EndPointBack="45.0 40.0 10.0" />
+                <Wire Name="1:D9_d9" EndPointFront="-10.0 0.0 -50.0" EndPointBack="-10.0 40.0 -50.0" />
+                <Wire Name="2:E9_h9" EndPointFront="0.0 0.0 -50.0" EndPointBack="30.0 40.0 -50.0" />
+                <Wire Name="3:I9_i9" EndPointFront="40.0 0.0 -50.0" EndPointBack="40.0 40.0 -50.0" />
             </Pattern>
             <Pattern Type="NWire">
-                <Wire Name="4:E3_e3" EndPointFront="20.0 0.0 5.0" EndPointBack="20.0 40.0 5.0" />
-                <Wire Name="5:F3_j3" EndPointFront="25.0 0.0 5.0" EndPointBack="45.0 40.0 5.0" />
-                <Wire Name="6:K3_k3" EndPointFront="50.0 0.0 5.0" EndPointBack="50.0 40.0 5.0" />
+                <Wire Name="4:D10_d10" EndPointFront="-10.0 0.0 -60.0" EndPointBack="-10.0 40.0 -60.0" />
+                <Wire Name="5:F10_g10" EndPointFront="10.0 0.0 -60.0" EndPointBack="20.0 40.0 -60.0" />
+                <Wire Name="6:I10_i10" EndPointFront="40.0 0.0 -60.0" EndPointBack="40.0 40.0 -60.0" />
             </Pattern>
             <Pattern Type="NWire">
-                <Wire Name="7:E4_e4" EndPointFront="20.0 0.0 0.0" EndPointBack="20.0 40.0 0.0" />
-                <Wire Name="8:J4_f4" EndPointFront="45.0 0.0 0.0" EndPointBack="25.0 40.0 0.0" />
-                <Wire Name="9:K4_k4" EndPointFront="50.0 0.0 0.0" EndPointBack="50.0 40.0 0.0" />
+                <Wire Name="7:D11_d11" EndPointFront="-10.0 0.0 -70.0" EndPointBack="-10.0 40.0 -70.0" />
+                <Wire Name="8:E11_h11" EndPointFront="0.0 0.0 -70.0" EndPointBack="30.0 40.0 -70.0" />
+                <Wire Name="9:I11_i11" EndPointFront="40.0 0.0 -70.0" EndPointBack="40.0 40.0 -70.0" />
+            </Pattern>
+            <Pattern Type="NWire">
+                <Wire Name="10:D12_d12" EndPointFront="-10.0 0.0 -80.0" EndPointBack="-10.0 40.0 -80.0" />
+                <Wire Name="11:F12_g12" EndPointFront="10.0 0.0 -80.0" EndPointBack="20.0 40.0 -80.0" />
+                <Wire Name="12:I12_i12" EndPointFront="40.0 0.0 -80.0" EndPointBack="40.0 40.0 -80.0" />
+            </Pattern>
+            <Pattern Type="NWire">
+                <Wire Name="10:D13_d13" EndPointFront="-10.0 0.0 -90.0" EndPointBack="-10.0 40.0 -90.0" />
+                <Wire Name="11:E13_h13" EndPointFront="0.0 0.0 -90.0" EndPointBack="30.0 40.0 -90.0" />
+                <Wire Name="12:I13_i13" EndPointFront="40.0 0.0 -90.0" EndPointBack="40.0 40.0 -90.0" />
             </Pattern>
             <Landmarks>
                 <Landmark Name="#1" Position="95.0 5.0 15.0" />
