@@ -77,4 +77,80 @@ make
 
 ## Running the calibration
 
-6. We run the main file on the acquired data and segmented landmark to perform the calibration
+### Preparing the config .xml file
+The config .xml is parsed and used by PLUS class to load the parameters of given algorithms. Here, we provide a description of a basic .xml config to perform the US probe calibration
+
+1. *Coordintate definition* This block defines the different coordinate systems involved in the calibration
+
+```xml
+<CoordinateDefinitions>
+
+        <Transform From="Phantom" To="Reference"
+                   Matrix="-0.0907699158887156 -0.184598217527959 -0.978613468359728 233.721887857712
+                           0.889602812204198 -0.456720481653725 0.00363842773349177 -20.0402839931967
+                           -0.447624461896284 -0.870247033734382 0.205675573145117 -779.669497681758
+                           0 0 0 1"
+               Date="2011.12.01 17:57:00" Error="0.0" />
+        <Transform From="Image" To="TransducerOriginPixel"
+                   Matrix="1 0 0 -410
+                          0 1 0 0
+                          0 0 1 0
+                          0 0 0 1"
+                   Date="2011.12.06 17:57:00" Error="0.0" />
+    </CoordinateDefinitions>
+```
+
+In This case, we have the PhantomToReference matrix, defining the transformation of the physical phantom wrt the reference (tracker) coordinate system. This transformation matrix was found at the previous step ("Finding the PhantomToReference transform") and should be copied here in the .xml file. 
+The ImageToTransducerOriginPixel is the transformation between the image origin (top left pixel of the image) to the center of the transducer (the middle of the transducer) in pixel. It corresponds to a translation along the image width of half of the image width.
+
+2. *Phantom Definition* : This block defines the geometry of the phantom and the arrangment of the phantom wiring
+    
+```xml
+<PhantomDefinition>
+        <Description
+                Name="fCAL"
+                Type="Multi-N"
+                Version="1.2"
+                WiringVersion="1.1"
+                Institution="Queen's University PerkLab" />
+        <Geometry>
+            <Pattern Type="NWire">
+                <Wire Name="1:E2_e2" EndPointFront="20.0 0.0 10.0" EndPointBack="20.0 40.0 10.0" />
+                <Wire Name="2:I2_f2" EndPointFront="40.0 0.0 10.0" EndPointBack="25.0 40.0 10.0" />
+                <Wire Name="3:J2_j2" EndPointFront="45.0 0.0 10.0" EndPointBack="45.0 40.0 10.0" />
+            </Pattern>
+            <Pattern Type="NWire">
+                <Wire Name="4:E3_e3" EndPointFront="20.0 0.0 5.0" EndPointBack="20.0 40.0 5.0" />
+                <Wire Name="5:F3_j3" EndPointFront="25.0 0.0 5.0" EndPointBack="45.0 40.0 5.0" />
+                <Wire Name="6:K3_k3" EndPointFront="50.0 0.0 5.0" EndPointBack="50.0 40.0 5.0" />
+            </Pattern>
+            <Pattern Type="NWire">
+                <Wire Name="7:E4_e4" EndPointFront="20.0 0.0 0.0" EndPointBack="20.0 40.0 0.0" />
+                <Wire Name="8:J4_f4" EndPointFront="45.0 0.0 0.0" EndPointBack="25.0 40.0 0.0" />
+                <Wire Name="9:K4_k4" EndPointFront="50.0 0.0 0.0" EndPointBack="50.0 40.0 0.0" />
+            </Pattern>
+            <Landmarks>
+                <Landmark Name="#1" Position="95.0 5.0 15.0" />
+                <Landmark Name="#2" Position="95.0 40.0 15.0" />
+                <Landmark Name="#3" Position="95.0 40.0 0.0" />
+                <Landmark Name="#4" Position="95.0 0.0 0.0" />
+                <Landmark Name="#5" Position="-25.0 40.0 15.0" />
+                <Landmark Name="#6" Position="-25.0 0.0 10.0" />
+                <Landmark Name="#7" Position="-25.0 0.0 0.0" />
+                <Landmark Name="#8" Position="-25.0 40.0 0.0" />
+            </Landmarks>
+        </Geometry>
+    </PhantomDefinition>
+```
+
+In <Geometry>/<Pattern Type="NWire"> We report the positions (In physical space, referred to the phantom coordinate system) of each wire constituting an NWire, for each defined NWire. 
+  
+2. *vtkPlusProbeCalibrationAlgo* : This block contains the information on the coordinate system naming, needed for the calibration
+```xml
+    <vtkPlusProbeCalibrationAlgo
+            ImageCoordinateFrame="Image"
+            ProbeCoordinateFrame="Probe"
+            PhantomCoordinateFrame="Phantom"
+            ReferenceCoordinateFrame="Reference" />
+```
+  
