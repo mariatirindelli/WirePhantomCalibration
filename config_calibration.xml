@@ -1,0 +1,78 @@
+<PlusConfiguration version="2.1">
+    <CoordinateDefinitions>
+
+        <Transform From="Phantom" To="Reference"
+                   Matrix="-0.0907699158887156 -0.184598217527959 -0.978613468359728 233.721887857712
+                           0.889602812204198 -0.456720481653725 0.00363842773349177 -20.0402839931967
+                           -0.447624461896284 -0.870247033734382 0.205675573145117 -779.669497681758
+                           0 0 0 1"
+               Date="2011.12.01 17:57:00" Error="0.0" />
+        <Transform From="Image" To="TransducerOriginPixel"
+                   Matrix="1 0 0 -410
+                          0 1 0 0
+                          0 0 1 0
+                          0 0 0 1"
+                   Date="2011.12.06 17:57:00" Error="0.0" />
+    </CoordinateDefinitions>
+    <PhantomDefinition>
+        <Description
+                Name="fCAL"
+                Type="Multi-N"
+                Version="1.2"
+                WiringVersion="1.1"
+                Institution="Queen's University PerkLab" />
+        <Geometry>
+            <Pattern Type="NWire">
+                <Wire Name="1:D9_d9" EndPointFront="-10.0 0.0 -50.0" EndPointBack="-10.0 40.0 -50.0" />
+                <Wire Name="2:E9_h9" EndPointFront="0.0 0.0 -50.0" EndPointBack="30.0 40.0 -50.0" />
+                <Wire Name="3:I9_i9" EndPointFront="40.0 0.0 -50.0" EndPointBack="40.0 40.0 -50.0" />
+            </Pattern>
+
+            <Pattern Type="NWire">
+                <Wire Name="4:D10_d10" EndPointFront="-10.0 0.0 -60.0" EndPointBack="-10.0 40.0 -60.0" />
+                <Wire Name="5:F10_g10" EndPointFront="10.0 0.0 -60.0" EndPointBack="20.0 40.0 -60.0" />
+                <Wire Name="6:I10_i10" EndPointFront="40.0 0.0 -60.0" EndPointBack="40.0 40.0 -60.0" />
+            </Pattern>
+
+            <Pattern Type="NWire">
+                <Wire Name="7:D11_d11" EndPointFront="-10.0 0.0 -70.0" EndPointBack="-10.0 40.0 -70.0" />
+                <Wire Name="8:E11_h11" EndPointFront="0.0 0.0 -70.0" EndPointBack="30.0 40.0 -70.0" />
+                <Wire Name="9:I11_i11" EndPointFront="40.0 0.0 -70.0" EndPointBack="40.0 40.0 -70.0" />
+            </Pattern>
+
+            <Pattern Type="NWire">
+                <Wire Name="10:D12_d12" EndPointFront="-10.0 0.0 -80.0" EndPointBack="-10.0 40.0 -80.0" />
+                <Wire Name="11:F12_g12" EndPointFront="10.0 0.0 -80.0" EndPointBack="20.0 40.0 -80.0" />
+                <Wire Name="12:I12_i12" EndPointFront="40.0 0.0 -80.0" EndPointBack="40.0 40.0 -80.0" />
+            </Pattern>
+
+            <Pattern Type="NWire">
+                <Wire Name="10:D13_d13" EndPointFront="-10.0 0.0 -90.0" EndPointBack="-10.0 40.0 -90.0" />
+                <Wire Name="11:E13_h13" EndPointFront="0.0 0.0 -90.0" EndPointBack="30.0 40.0 -90.0" />
+                <Wire Name="12:I13_i13" EndPointFront="40.0 0.0 -90.0" EndPointBack="40.0 40.0 -90.0" />
+            </Pattern>
+
+            <Landmarks>
+                <Landmark Name="#1" Position="95.0 5.0 15.0" />
+                <Landmark Name="#2" Position="95.0 40.0 15.0" />
+                <Landmark Name="#3" Position="95.0 40.0 0.0" />
+                <Landmark Name="#4" Position="95.0 0.0 0.0" />
+                <Landmark Name="#5" Position="-25.0 40.0 15.0" />
+                <Landmark Name="#6" Position="-25.0 0.0 10.0" />
+                <Landmark Name="#7" Position="-25.0 0.0 0.0" />
+                <Landmark Name="#8" Position="-25.0 40.0 0.0" />
+            </Landmarks>
+        </Geometry>
+    </PhantomDefinition>
+
+    <VolumeReconstruction OutputSpacing="0.5 0.5 0.5"
+                          ClipRectangleOrigin="0 0" ClipRectangleSize="820 616"
+                          Interpolation="LINEAR" Optimization="FULL" CompoundingMode="MEAN" FillHoles="OFF" />
+
+    <vtkPlusProbeCalibrationAlgo
+            ImageCoordinateFrame="Image"
+            ProbeCoordinateFrame="Probe"
+            PhantomCoordinateFrame="Phantom"
+            ReferenceCoordinateFrame="Reference" />
+
+</PlusConfiguration>
