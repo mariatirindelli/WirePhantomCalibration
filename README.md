@@ -77,6 +77,42 @@ make
 
 ## Running the calibration
 
+### How does the calibration works
+Assume to have a phantom with an NWire at the row 9 of the phantom grid, cabled as in the picture: 
+
+![grafik](https://user-images.githubusercontent.com/48152056/165902594-6d529558-b812-4f65-bb37-271bc551cae3.png)
+
+Now, consider the ultrasound image plane in the image, indicated as a solid red line in the drawing below, and the points X1, X2, X3 indicating the points where the Ultrasound image intersects the Nwire frame, visible as white dots in the ultrasound image
+
+![grafik](https://user-images.githubusercontent.com/48152056/165905108-920c8e29-0cc6-497d-80f6-cc92f05d30c8.png)
+
+where {H} indicates the phantom coordinate system and {U} indicates the image coordinate system. 
+
+If we consider the following triangles: 
+
+![grafik](https://user-images.githubusercontent.com/48152056/165905436-933a8687-5e25-4315-a16d-9f83341bccd9.png)
+
+We can see that the triangles ABC and AX2X1 are similar.
+Therefore, it holds true that:
+
+![grafik](https://user-images.githubusercontent.com/48152056/165909496-3803ee4a-933a-403e-957b-527e6503cb55.png)
+
+Note that this holds true, regardless on the coordinate system used. Therefore:
+
+![grafik](https://user-images.githubusercontent.com/48152056/165909681-b9e186e1-1332-4436-b433-ccf0adfa937b.png)
+
+Where "H" indicates the phantom coordinate system and "U" the Ultrasound coordinate system. 
+
+Furthermore we can see that:
+
+![grafik](https://user-images.githubusercontent.com/48152056/165909738-b9842bb7-c4bb-4e78-9487-ed1282d3b10c.png)
+
+Given a point in the Ultrasound Image coordinate system (_ ^𝑈)𝑋, we can express the same point in the phantom coordinate system (H) as 
+
+![grafik](https://user-images.githubusercontent.com/48152056/165911050-8aa2795e-ee3a-4dae-a560-30a13f218bfe.png)
+
+This can be solved with an LSQM optimizer to find the transform from probe to ultrasound coordinate systesms
+
 ### Preparing the config .xml file
 The config .xml is parsed and used by PLUS class to load the parameters of given algorithms. Here, we provide a description of a basic .xml config to perform the US probe calibration
 
@@ -139,21 +175,11 @@ The ImageToTransducerOriginPixel is the transformation between the image origin 
                 <Wire Name="11:E13_h13" EndPointFront="0.0 0.0 -90.0" EndPointBack="30.0 40.0 -90.0" />
                 <Wire Name="12:I13_i13" EndPointFront="40.0 0.0 -90.0" EndPointBack="40.0 40.0 -90.0" />
             </Pattern>
-            <Landmarks>
-                <Landmark Name="#1" Position="95.0 5.0 15.0" />
-                <Landmark Name="#2" Position="95.0 40.0 15.0" />
-                <Landmark Name="#3" Position="95.0 40.0 0.0" />
-                <Landmark Name="#4" Position="95.0 0.0 0.0" />
-                <Landmark Name="#5" Position="-25.0 40.0 15.0" />
-                <Landmark Name="#6" Position="-25.0 0.0 10.0" />
-                <Landmark Name="#7" Position="-25.0 0.0 0.0" />
-                <Landmark Name="#8" Position="-25.0 40.0 0.0" />
-            </Landmarks>
         </Geometry>
     </PhantomDefinition>
 ```
 
-In <Geometry>/<Pattern Type="NWire"> We report the positions (In physical space, referred to the phantom coordinate system) of each wire constituting an NWire, for each defined NWire. 
+In *Geometry/Pattern Type="NWire"* We report the positions (In physical space, referred to the phantom coordinate system) of each wire constituting an NWire, for each defined NWire. 
   
 2. *vtkPlusProbeCalibrationAlgo* : This block contains the information on the coordinate system naming, needed for the calibration
 ```xml
