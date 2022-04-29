@@ -105,11 +105,12 @@ Where "H" indicates the phantom coordinate system and "U" the Ultrasound coordin
 
 Furthermore we can see that:
 
-![grafik](https://user-images.githubusercontent.com/48152056/165909738-b9842bb7-c4bb-4e78-9487-ed1282d3b10c.png)
+![grafik](https://user-images.githubusercontent.com/48152056/165917343-09a4476e-24a1-4c59-bf9b-d515a3d88a7f.png)
 
-Given a point in the Ultrasound Image coordinate system (_ ^𝑈)𝑋, we can express the same point in the phantom coordinate system (H) as 
 
-![grafik](https://user-images.githubusercontent.com/48152056/165911050-8aa2795e-ee3a-4dae-a560-30a13f218bfe.png)
+Given a point in the Ultrasound Image coordinate system, we can express the same point in the phantom coordinate system (H) as 
+
+![grafik](https://user-images.githubusercontent.com/48152056/165918408-1f542f39-c021-4164-812c-fec005e7fa6a.png)
 
 This can be solved with an LSQM optimizer to find the transform from probe to ultrasound coordinate systesms
 
