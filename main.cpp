@@ -9,7 +9,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkPoints.h"
 #include "vtksys/CommandLineArguments.hxx"
-
+#include "PlusMath.h"
 
 struct Fiducial
 {
@@ -30,15 +30,17 @@ vtkSmartPointer<vtkIGSIOTrackedFrameList> read_tracked_frames(const std::string&
 
 std::vector<double> string2vector(const std::string& input_string);
 
+void print_imfusion_matrix(vtkSmartPointer<vtkMatrix4x4> matrix);
+
 int main (int argc, char* argv[])
 {
     const char* config_path = "/home/maria/imfusion/plus-calibration/config_calibration.xml";
 
-    std::string calibration_sweep_path = "/home/maria/Desktop/materiale_imfusion/wire-phantom-calibration/US-Calibration-Data/SegmentedSweeps/SweepLabels0.mha";
-    std::string calibration_fiducial_file_path = "/home/maria/Desktop/materiale_imfusion/wire-phantom-calibration/US-Calibration-Data/SegmentedSweeps/SweepFiducials0.txt";
+    std::string calibration_sweep_path = "/home/maria/Desktop/WirePhantomCalibrationProject/ProcessingPipeline/SegmentedSweeps/wirePhantomSweepsLabels0.mha";
+    std::string calibration_fiducial_file_path = "/home/maria/Desktop/WirePhantomCalibrationProject/ProcessingPipeline/SegmentedSweeps/wirePhantomFiducials0.txt";
 
-    std::string validation_sweep_path = "/home/maria/Desktop/materiale_imfusion/wire-phantom-calibration/US-Calibration-Data/SegmentedSweeps/SweepLabels0.mha";
-    std::string validation_fiducial_file_path = "/home/maria/Desktop/materiale_imfusion/wire-phantom-calibration/US-Calibration-Data/SegmentedSweeps/SweepFiducials0.txt";
+    std::string validation_sweep_path = "/home/maria/Desktop/WirePhantomCalibrationProject/ProcessingPipeline/SegmentedSweeps/wirePhantomSweepsLabels1.mha";
+    std::string validation_fiducial_file_path = "/home/maria/Desktop/WirePhantomCalibrationProject/ProcessingPipeline/SegmentedSweeps/wirePhantomFiducials1.txt";
 
     // Reading the configuration file
     vtkSmartPointer<vtkXMLDataElement> configRootElement = vtkSmartPointer<vtkXMLDataElement>::New();
@@ -78,6 +80,15 @@ int main (int argc, char* argv[])
         LOG_ERROR("Calibration failed!");
         return EXIT_FAILURE;
     }
+
+    igsioTransformName ImageCenterToProbeTransformName("ImageCenter", "Probe");
+    vtkSmartPointer<vtkMatrix4x4> ImageCenterToProbeTransVtkTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+
+    if (transformRepository->GetTransform(ImageCenterToProbeTransformName, ImageCenterToProbeTransVtkTransformMatrix) != PLUS_SUCCESS)
+    {
+        return -1;
+    }
+    print_imfusion_matrix(ImageCenterToProbeTransVtkTransformMatrix);
 
     return 0;
 }
@@ -161,4 +172,19 @@ std::vector<std::vector<Fiducial>> get_fiducials_from_file(const std::string& fi
     infile.close();
 
     return fiducials;
+}
+
+void print_imfusion_matrix(vtkSmartPointer<vtkMatrix4x4> matrix)
+{
+    std::cout << "[[" << matrix->GetElement(0, 0) << ", " << matrix->GetElement(0, 1) <<
+    ", " << matrix->GetElement(0, 2) << ", " << matrix->GetElement(0, 3) << "], ";
+
+    std::cout << "[" << matrix->GetElement(1, 0) << ", " << matrix->GetElement(1, 1) <<
+              ", " << matrix->GetElement(1, 2) << ", " << matrix->GetElement(1, 3) << "], ";
+
+    std::cout << "[" << matrix->GetElement(2, 0) << ", " << matrix->GetElement(2, 1) <<
+              ", " << matrix->GetElement(2, 2) << ", " << matrix->GetElement(2, 3) << "], ";
+
+    std::cout << "[" << matrix->GetElement(3, 0) << ", " << matrix->GetElement(3, 1) <<
+              ", " << matrix->GetElement(3, 2) << ", " << matrix->GetElement(3, 3) << "]] ";
 }

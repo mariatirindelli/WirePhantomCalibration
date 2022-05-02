@@ -6,6 +6,12 @@
                            -0.447624461896284 -0.870247033734382 0.205675573145117 -779.669497681758
                            0 0 0 1"
         />
+        <Transform From="ImageCenter" To="Image"
+                   Matrix="1 0 0  80.595
+                           0 1 0 53.915
+                           0 0 1 0
+                           0 0 0 1"
+        />
     </CoordinateDefinitions>
     <PhantomDefinition>
         <Description
