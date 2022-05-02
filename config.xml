@@ -91,5 +91,4 @@
             ProbeCoordinateFrame="Probe"
             PhantomCoordinateFrame="Phantom"
             ReferenceCoordinateFrame="Reference" />
-
 </PlusConfiguration>
