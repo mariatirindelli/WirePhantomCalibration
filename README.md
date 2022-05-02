@@ -88,11 +88,7 @@ Now, consider the ultrasound image plane in the image, indicated as a solid red 
 
 where {H} indicates the phantom coordinate system and {U} indicates the image coordinate system. 
 
-If we consider the following triangles: 
-
-![grafik](https://user-images.githubusercontent.com/48152056/165905436-933a8687-5e25-4315-a16d-9f83341bccd9.png)
-
-We can see that the triangles ABC and AX2X1 are similar.
+If we consider the following triangles, we can see that the triangles ABC and AX2X1 are similar.
 Therefore, it holds true that:
 
 ![grafik](https://user-images.githubusercontent.com/48152056/165909496-3803ee4a-933a-403e-957b-527e6503cb55.png)
@@ -112,7 +108,9 @@ Given a point in the Ultrasound Image coordinate system, we can express the same
 
 ![grafik](https://user-images.githubusercontent.com/48152056/165918408-1f542f39-c021-4164-812c-fec005e7fa6a.png)
 
-This can be solved with an LSQM optimizer to find the transform from probe to ultrasound coordinate systesms
+and: 
+
+![grafik](https://user-images.githubusercontent.com/48152056/166210305-5b1fbe02-7324-4d4a-9045-6ee2fc5c71c5.png)
 
 ### Preparing the config .xml file
 The config .xml is parsed and used by PLUS class to load the parameters of given algorithms. Here, we provide a description of a basic .xml config to perform the US probe calibration
