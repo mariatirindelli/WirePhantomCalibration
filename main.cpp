@@ -1,7 +1,3 @@
-/*!
-
-*/
-
 #include "PlusConfigure.h"
 #include "PlusFidPatternRecognition.h"
 #include "vtkMath.h"
@@ -14,34 +10,37 @@
 #include "vtkPoints.h"
 #include "vtksys/CommandLineArguments.hxx"
 
-///////////////////////////////////////////////////////////////////
 
-class PatternRecognitionWrapper : public PlusFidPatternRecognition
-        {
-public:
-    PatternRecognitionWrapper() : PlusFidPatternRecognition(){}
-    ~PatternRecognitionWrapper() override = default;
-    void setDebugMode() {m_FidSegmentation.SetDebugOutput(true);}
-        };
+struct Fiducial
+{
+    Fiducial(double x, double y, double z, int frame_idx=-1): x(x), y(y), z(z), frame_idx(frame_idx) {};
+    double x;
+    double y;
+    double z;
+    int frame_idx = -1;
+};
 
-// todo: this is not really optimized as it reopens the file for each frame but for now we keep it like this
-std::vector< std::vector<double> > get_fiducials_from_file(const std::string& filepath, unsigned int frame_id);
+std::vector<std::vector<Fiducial>> get_fiducials_from_file(const std::string& filepath,
+                                                           double x_spacing=1,
+                                                           double y_spacing=1,
+                                                           double z_spacing=1);
 
+vtkSmartPointer<vtkIGSIOTrackedFrameList> read_tracked_frames(const std::string& mha_file,
+                                                              const std::string& fiducial_txt_path);
+
+std::vector<double> string2vector(const std::string& input_string);
 
 int main (int argc, char* argv[])
 {
-    bool pattern_recognition = false;
-
-     //std::string calibration_sweep_path = "/home/maria/Desktop/materiale_imfusion/wire-phantom-calibration/US-Calibration-Data/DataRecordings/USTC_Ulterius_RandomStepperMotionData1.igs.mha";
-    // std::string calibration_sweep_path = "/home/maria/Desktop/materiale_imfusion/wire-phantom-calibration/US-Calibration-Data/DataRecordings/sweep2.mha";
-    // std::string calibration_sweep_path = "/home/maria/Desktop/materiale_imfusion/wire-phantom-calibration/US-Calibration-Data/DataRecordings/segmentedTestDataTemp.mha";
+    const char* config_path = "/home/maria/imfusion/plus-calibration/config_calibration.xml";
 
     std::string calibration_sweep_path = "/home/maria/Desktop/materiale_imfusion/wire-phantom-calibration/US-Calibration-Data/SegmentedSweeps/SweepLabels0.mha";
-    std::string fiducial_file_path = "/home/maria/Desktop/materiale_imfusion/wire-phantom-calibration/US-Calibration-Data/SegmentedSweeps/SweepFiducials0.txt";
-    const char* config_path = "/home/maria/imfusion/plus-calibration/config.xml";
+    std::string calibration_fiducial_file_path = "/home/maria/Desktop/materiale_imfusion/wire-phantom-calibration/US-Calibration-Data/SegmentedSweeps/SweepFiducials0.txt";
 
-    vtkPlusProbeCalibrationAlgo* calibrationAlgo = vtkPlusProbeCalibrationAlgo::New();
+    std::string validation_sweep_path = "/home/maria/Desktop/materiale_imfusion/wire-phantom-calibration/US-Calibration-Data/SegmentedSweeps/SweepLabels0.mha";
+    std::string validation_fiducial_file_path = "/home/maria/Desktop/materiale_imfusion/wire-phantom-calibration/US-Calibration-Data/SegmentedSweeps/SweepFiducials0.txt";
 
+    // Reading the configuration file
     vtkSmartPointer<vtkXMLDataElement> configRootElement = vtkSmartPointer<vtkXMLDataElement>::New();
     if (PlusXmlUtils::ReadDeviceSetConfigurationFromFile(configRootElement, config_path)==PLUS_FAIL)
     {
@@ -49,11 +48,7 @@ int main (int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    // Reading the Optimizer configuration options
-    auto res = calibrationAlgo->ReadConfiguration(configRootElement);
-
-    // Reading the coordinates system definitions
-    // Read coordinate definitions
+    // Reading the coordinate system names from the config file
     vtkSmartPointer<vtkIGSIOTransformRepository> transformRepository = vtkSmartPointer<vtkIGSIOTransformRepository>::New();
     if ( transformRepository->ReadConfiguration(configRootElement) != PLUS_SUCCESS )
     {
@@ -61,120 +56,109 @@ int main (int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    PatternRecognitionWrapper patternRecognition;
-    patternRecognition.setDebugMode();
-    //PlusFidPatternRecognition patternRecognition;
-    PlusFidPatternRecognition::PatternRecognitionError error;
+    // The pattern recognition algorithm is not really used, it is only initialized to read the phantom geometry
+    PlusFidPatternRecognition patternRecognition;
     patternRecognition.ReadConfiguration(configRootElement);
 
-    // Load and segment calibration tracked frame list
-    vtkSmartPointer<vtkIGSIOTrackedFrameList> calibrationTrackedFrameList = vtkSmartPointer<vtkIGSIOTrackedFrameList>::New();
-    if( vtkIGSIOSequenceIO::Read(calibration_sweep_path, calibrationTrackedFrameList) != PLUS_SUCCESS )
-    {
-        LOG_ERROR("Failed to read tracked frames from sequence metafile from: " << calibration_sweep_path );
-        return EXIT_FAILURE;
-    }
+    // Reading the calibration file
+    vtkSmartPointer<vtkIGSIOTrackedFrameList> calibrationTrackedFrameList =
+            read_tracked_frames(calibration_sweep_path, calibration_fiducial_file_path);
 
-    // If fiducials are not manually set, the fiducials search can be done automatically on the input tracked frames.
-    // For doing so, it is necessary to correctly tune the segmentation parameters in the config xml files
-    if (pattern_recognition)
-    {
-        int numberOfSuccessfullySegmentedCalibrationImages = 0;
-        if (patternRecognition.RecognizePattern(calibrationTrackedFrameList, error, &numberOfSuccessfullySegmentedCalibrationImages) != PLUS_SUCCESS)
-        {
-            LOG_ERROR("Error occured during segmentation of calibration images!");
-            return EXIT_FAILURE;
-        }
-    }
-
-    // If fiducials are manually labelled and stored, they are read here and assigned to the corresponding frame in the
-    // tracked frames
-    else
-    {
-        // iterate over the frames
-        for (unsigned int currentFrameIndex = 0; currentFrameIndex < calibrationTrackedFrameList->GetNumberOfTrackedFrames(); currentFrameIndex++) {
-            igsioTrackedFrame *trackedFrame = calibrationTrackedFrameList->GetTrackedFrame(currentFrameIndex);
-
-            // retrieve the fiducials for the current frame
-            std::vector<std::vector<double>> fiducials = get_fiducials_from_file(fiducial_file_path, currentFrameIndex);
-
-            vtkSmartPointer<vtkPoints> fiducialPoints = vtkSmartPointer<vtkPoints>::New();
-            fiducialPoints->SetNumberOfPoints(fiducials.size());
-
-            for (unsigned int i = 0; i < fiducials.size(); ++i)
-            {
-                fiducialPoints->InsertPoint(i, fiducials[i][0], fiducials[i][1], 0.0);
-            }
-            fiducialPoints->Modified();
-            trackedFrame->SetFiducialPointsCoordinatePx(fiducialPoints);
-        }
-    }
+    // Reading the validation file
+    vtkSmartPointer<vtkIGSIOTrackedFrameList> validationTrackedFrameList =
+            read_tracked_frames(validation_sweep_path, validation_fiducial_file_path);
 
     // Initialize the probe calibration algo
     vtkSmartPointer<vtkPlusProbeCalibrationAlgo> probeCal = vtkSmartPointer<vtkPlusProbeCalibrationAlgo>::New();
     probeCal->ReadConfiguration(configRootElement);
 
-    // todo: change the validation frame list
     // Calibrate
-    if (probeCal->Calibrate( calibrationTrackedFrameList, calibrationTrackedFrameList, transformRepository, patternRecognition.GetFidLineFinder()->GetNWires()) != PLUS_SUCCESS)
+    if (probeCal->Calibrate( validationTrackedFrameList, calibrationTrackedFrameList, transformRepository, patternRecognition.GetFidLineFinder()->GetNWires()) != PLUS_SUCCESS)
     {
         LOG_ERROR("Calibration failed!");
         return EXIT_FAILURE;
     }
 
     return 0;
-
 }
 
-// this function is very hacky - todo: write it better
-std::vector< std::vector<double> > get_fiducials_from_file(const std::string& filepath, unsigned int frame_id)
+std::vector<double> string2vector(const std::string& input_string)
 {
-    std::vector< std::vector<double> > fiducials;
-
-    fstream newfile;
-    newfile.open(filepath, ios::in); //open a file to perform read operation using file object
-    if (newfile.is_open()) { //checking whether the file is open
-        std::string tp;
-        while (getline(newfile, tp)) { //read data from file object and put it into string.
-            std::istringstream f(tp);
-            std::string s;
-            std::vector<double> current_fiducial;
-
-            // Getting the first item, corresponding with the frame id
-            getline(f, s, ',');
-
-            unsigned int current_frame_id = 20000;
-            // if the frame id coincides with the passed frame id, then extract the other info
-            try {
-                current_frame_id = std::stoi(s);
-            }
-            catch (...) {
-                continue;
-            }
-
-            if (current_frame_id != frame_id)
-                continue;
-
-            // extracting the other info
-            std::vector<int> fiducial_info;
-            fiducial_info.push_back(frame_id);
-            while (getline(f, s, ',')) {
-                cout << s << endl;
-
-                int current_value = -1;
-                try {
-                    current_value = std::stoi(s);
-                }
-                catch (...) {
-                    continue;
-                }
-                fiducial_info.push_back(current_value);
-            }
-            current_fiducial.push_back(fiducial_info.at(3)); // pushing back row
-            current_fiducial.push_back(fiducial_info.at(4)); // pushing back col
-            fiducials.push_back(current_fiducial);
-        }
+    std::vector<double> output_vector;
+    std::string item;
+    std::stringstream text_stream(input_string);
+    while (std::getline(text_stream, item, ' ')) {
+        output_vector.push_back(stod(item));
     }
-        newfile.close(); //close the file object.
+    return output_vector;
+}
+
+vtkSmartPointer<vtkIGSIOTrackedFrameList> read_tracked_frames(const std::string& mha_file,
+                                                              const std::string& fiducial_txt_path)
+{
+    vtkSmartPointer<vtkIGSIOTrackedFrameList> calibrationTrackedFrameList = vtkSmartPointer<vtkIGSIOTrackedFrameList>::New();
+    if( vtkIGSIOSequenceIO::Read(mha_file, calibrationTrackedFrameList) != PLUS_SUCCESS )
+    {
+        LOG_ERROR("Failed to read tracked frames from sequence metafile from: " << mha_file );
+        return calibrationTrackedFrameList;
+    }
+
+    // Getting the image spacing
+    auto spacing = string2vector(calibrationTrackedFrameList->GetCustomString("ElementSpacing"));
+
+    // Read the fiducials positions from the txt file and save them to the corresponding tracked frame
+    std::vector<std::vector<Fiducial>> fiducials = get_fiducials_from_file(fiducial_txt_path,
+                                                                           spacing.at(0),
+                                                                           spacing.at(1),
+                                                                           spacing.at(2));
+
+    // iterate over the frames and assign labeled fiducials coordinates to each frame
+    for (unsigned int currentFrameIndex = 0; currentFrameIndex < calibrationTrackedFrameList->GetNumberOfTrackedFrames(); currentFrameIndex++) {
+        igsioTrackedFrame *trackedFrame = calibrationTrackedFrameList->GetTrackedFrame(currentFrameIndex);
+
+        vtkSmartPointer<vtkPoints> fiducialPoints = vtkSmartPointer<vtkPoints>::New();
+        fiducialPoints->SetNumberOfPoints((long long)fiducials.at(currentFrameIndex).size());
+
+        for (unsigned int i = 0; i < fiducials.at(currentFrameIndex).size(); ++i)
+        {
+            fiducialPoints->InsertPoint(i, fiducials.at(currentFrameIndex).at(i).x, fiducials.at(currentFrameIndex).at(i).y, fiducials.at(currentFrameIndex).at(i).z);
+        }
+        fiducialPoints->Modified();
+        trackedFrame->SetFiducialPointsCoordinatePx(fiducialPoints);
+    }
+    return calibrationTrackedFrameList;
+}
+
+
+std::vector<std::vector<Fiducial>> get_fiducials_from_file(const std::string& filepath,
+                                                           double x_spacing,
+                                                           double y_spacing,
+                                                           double z_spacing)
+{
+    std::vector< std::vector<Fiducial> > fiducials;
+
+    ifstream infile;
+    infile.open(filepath); // file containing numbers in 3 columns
+
+    // Return empty vector if the file didn't open
+    if(infile.fail())
         return fiducials;
+
+    // Reading the first line containing the column names
+    std::string tmp;
+    infile >> tmp;
+
+    // Reading the columns into the fiducials vector
+    int frame_idx, nWireId, wireId, row, col, num;
+    while(infile >> frame_idx && infile >> nWireId && infile >> wireId && infile >> row && infile >> col)
+    {
+        if (frame_idx >= fiducials.size())
+            fiducials.emplace_back();
+
+        fiducials.at(frame_idx).push_back(Fiducial(col*x_spacing, row*y_spacing, 0*z_spacing, frame_idx));
+        ++num;
+    }
+    infile.close();
+
+    return fiducials;
 }
